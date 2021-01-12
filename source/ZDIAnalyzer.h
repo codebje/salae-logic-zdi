@@ -1,16 +1,16 @@
-#ifndef SIMPLESERIAL_ANALYZER_H
-#define SIMPLESERIAL_ANALYZER_H
+#ifndef ZDI_ANALYZER_H
+#define ZDI_ANALYZER_H
 
 #include <Analyzer.h>
-#include "SimpleSerialAnalyzerResults.h"
-#include "SimpleSerialSimulationDataGenerator.h"
+#include "ZDIAnalyzerResults.h"
+#include "ZDISimulationDataGenerator.h"
 
-class SimpleSerialAnalyzerSettings;
-class ANALYZER_EXPORT SimpleSerialAnalyzer : public Analyzer2
+class ZDIAnalyzerSettings;
+class ANALYZER_EXPORT ZDIAnalyzer : public Analyzer2
 {
 public:
-	SimpleSerialAnalyzer();
-	virtual ~SimpleSerialAnalyzer();
+	ZDIAnalyzer();
+	virtual ~ZDIAnalyzer();
 
 	virtual void SetupResults();
 	virtual void WorkerThread();
@@ -22,21 +22,21 @@ public:
 	virtual bool NeedsRerun();
 
 protected: //vars
-	std::auto_ptr< SimpleSerialAnalyzerSettings > mSettings;
-	std::auto_ptr< SimpleSerialAnalyzerResults > mResults;
-	AnalyzerChannelData* mSerial;
+	std::unique_ptr< ZDIAnalyzerSettings > mSettings;
+	std::unique_ptr< ZDIAnalyzerResults > mResults;
 
-	SimpleSerialSimulationDataGenerator mSimulationDataGenerator;
+	AnalyzerChannelData* mZCL;
+	AnalyzerChannelData* mZDA;
+
+	ZDISimulationDataGenerator mSimulationDataGenerator;
 	bool mSimulationInitilized;
 
-	//Serial analysis vars:
-	U32 mSampleRateHz;
-	U32 mStartOfStopBitOffset;
-	U32 mEndOfStopBitOffset;
+private:
+        U8 GetTransferredByte();
 };
 
 extern "C" ANALYZER_EXPORT const char* __cdecl GetAnalyzerName();
 extern "C" ANALYZER_EXPORT Analyzer* __cdecl CreateAnalyzer( );
 extern "C" ANALYZER_EXPORT void __cdecl DestroyAnalyzer( Analyzer* analyzer );
 
-#endif //SIMPLESERIAL_ANALYZER_H
+#endif //ZDI_ANALYZER_H

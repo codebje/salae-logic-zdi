@@ -1,73 +1,92 @@
-#include "SimpleSerialAnalyzerSettings.h"
+#include "ZDIAnalyzerSettings.h"
 #include <AnalyzerHelpers.h>
 
 
-SimpleSerialAnalyzerSettings::SimpleSerialAnalyzerSettings()
-:	mInputChannel( UNDEFINED_CHANNEL ),
-	mBitRate( 9600 )
+ZDIAnalyzerSettings::ZDIAnalyzerSettings()
+:	mZCL( UNDEFINED_CHANNEL ),
+	mZDA( UNDEFINED_CHANNEL )
 {
-	mInputChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
-	mInputChannelInterface->SetTitleAndTooltip( "Serial", "Standard Simple Serial" );
-	mInputChannelInterface->SetChannel( mInputChannel );
+	mZCLInterface.reset( new AnalyzerSettingInterfaceChannel() );
+	mZCLInterface->SetTitleAndTooltip( "ZCL", "Zilog Debug Interface clock" );
+	mZCLInterface->SetChannel( mZCL );
 
-	mBitRateInterface.reset( new AnalyzerSettingInterfaceInteger() );
-	mBitRateInterface->SetTitleAndTooltip( "Bit Rate (Bits/S)",  "Specify the bit rate in bits per second." );
-	mBitRateInterface->SetMax( 6000000 );
-	mBitRateInterface->SetMin( 1 );
-	mBitRateInterface->SetInteger( mBitRate );
+	mZDAInterface.reset( new AnalyzerSettingInterfaceChannel() );
+	mZDAInterface->SetTitleAndTooltip( "ZDA", "Zilog Debug Interface data" );
+	mZDAInterface->SetChannel( mZDA );
 
-	AddInterface( mInputChannelInterface.get() );
-	AddInterface( mBitRateInterface.get() );
+	AddInterface( mZCLInterface.get() );
+	AddInterface( mZDAInterface.get() );
 
 	AddExportOption( 0, "Export as text/csv file" );
 	AddExportExtension( 0, "text", "txt" );
 	AddExportExtension( 0, "csv", "csv" );
 
 	ClearChannels();
-	AddChannel( mInputChannel, "Serial", false );
+	AddChannel( mZCL, "ZCL", false );
+	AddChannel( mZDA, "ZDA", false );
 }
 
-SimpleSerialAnalyzerSettings::~SimpleSerialAnalyzerSettings()
+ZDIAnalyzerSettings::~ZDIAnalyzerSettings()
 {
 }
 
-bool SimpleSerialAnalyzerSettings::SetSettingsFromInterfaces()
+bool ZDIAnalyzerSettings::SetSettingsFromInterfaces()
 {
-	mInputChannel = mInputChannelInterface->GetChannel();
-	mBitRate = mBitRateInterface->GetInteger();
+	if( mZCLInterface->GetChannel() == UNDEFINED_CHANNEL )
+	{
+		SetErrorText( "Please select an input for channel 1." );
+		return false;
+	}
+
+	if( mZDAInterface->GetChannel() == UNDEFINED_CHANNEL )
+	{
+		SetErrorText( "Please select an input for channel 2." );
+		return false;
+	}
+
+	mZCL = mZCLInterface->GetChannel();
+	mZDA = mZDAInterface->GetChannel();
+
+	if( mZCL == mZDA )
+	{
+		SetErrorText( "Please select different inputs for the channels." );
+		return false;
+	}
 
 	ClearChannels();
-	AddChannel( mInputChannel, "Simple Serial", true );
+	AddChannel( mZCL, "ZCL", false );
+	AddChannel( mZDA, "ZDA", false );
 
 	return true;
 }
 
-void SimpleSerialAnalyzerSettings::UpdateInterfacesFromSettings()
+void ZDIAnalyzerSettings::UpdateInterfacesFromSettings()
 {
-	mInputChannelInterface->SetChannel( mInputChannel );
-	mBitRateInterface->SetInteger( mBitRate );
+	mZCLInterface->SetChannel( mZCL );
+	mZDAInterface->SetChannel( mZDA );
 }
 
-void SimpleSerialAnalyzerSettings::LoadSettings( const char* settings )
+void ZDIAnalyzerSettings::LoadSettings( const char* settings )
 {
 	SimpleArchive text_archive;
 	text_archive.SetString( settings );
 
-	text_archive >> mInputChannel;
-	text_archive >> mBitRate;
+	text_archive >> mZCL;
+	text_archive >> mZDA;
 
 	ClearChannels();
-	AddChannel( mInputChannel, "Simple Serial", true );
+	AddChannel( mZCL, "ZCL", false );
+	AddChannel( mZDA, "ZDA", false );
 
 	UpdateInterfacesFromSettings();
 }
 
-const char* SimpleSerialAnalyzerSettings::SaveSettings()
+const char* ZDIAnalyzerSettings::SaveSettings()
 {
 	SimpleArchive text_archive;
 
-	text_archive << mInputChannel;
-	text_archive << mBitRate;
+	text_archive << mZCL;
+	text_archive << mZDA;
 
 	return SetReturnString( text_archive.GetString() );
 }

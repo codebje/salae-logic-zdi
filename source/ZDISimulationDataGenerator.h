@@ -1,29 +1,39 @@
-#ifndef SIMPLESERIAL_SIMULATION_DATA_GENERATOR
-#define SIMPLESERIAL_SIMULATION_DATA_GENERATOR
+#ifndef ZDI_SIMULATION_DATA_GENERATOR
+#define ZDI_SIMULATION_DATA_GENERATOR
 
 #include <SimulationChannelDescriptor.h>
-#include <string>
-class SimpleSerialAnalyzerSettings;
+#include <AnalyzerHelpers.h>
 
-class SimpleSerialSimulationDataGenerator
+class ZDIAnalyzerSettings;
+struct SimulationData;
+
+class ZDISimulationDataGenerator
 {
 public:
-	SimpleSerialSimulationDataGenerator();
-	~SimpleSerialSimulationDataGenerator();
+	ZDISimulationDataGenerator();
+	~ZDISimulationDataGenerator();
 
-	void Initialize( U32 simulation_sample_rate, SimpleSerialAnalyzerSettings* settings );
+	void Initialize( U32 simulation_sample_rate, ZDIAnalyzerSettings* settings );
 	U32 GenerateSimulationData( U64 newest_sample_requested, U32 sample_rate, SimulationChannelDescriptor** simulation_channel );
 
 protected:
-	SimpleSerialAnalyzerSettings* mSettings;
+	ZDIAnalyzerSettings* mSettings;
 	U32 mSimulationSampleRateHz;
 
 protected:
-	void CreateSerialByte();
-	std::string mSerialText;
-	U32 mStringIndex;
+	ClockGenerator mClockGenerator;
+	U32 mCurrentSample;
 
-	SimulationChannelDescriptor mSerialSimulationData;
+	void AdvanceAllBySec( double sec )
+	{
+		mZDISimulationChannels.AdvanceAll( mClockGenerator.AdvanceByTimeS( sec ) );
+	}
+
+	void OutputTransaction( const SimulationData &data );
+
+	SimulationChannelDescriptorGroup mZDISimulationChannels;
+	SimulationChannelDescriptor* mZCL;
+	SimulationChannelDescriptor* mZDA;
 
 };
-#endif //SIMPLESERIAL_SIMULATION_DATA_GENERATOR
+#endif //ZDI_SIMULATION_DATA_GENERATOR

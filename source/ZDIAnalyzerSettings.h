@@ -1,14 +1,14 @@
-#ifndef SIMPLESERIAL_ANALYZER_SETTINGS
-#define SIMPLESERIAL_ANALYZER_SETTINGS
+#ifndef ZDI_ANALYZER_SETTINGS
+#define ZDI_ANALYZER_SETTINGS
 
 #include <AnalyzerSettings.h>
 #include <AnalyzerTypes.h>
 
-class SimpleSerialAnalyzerSettings : public AnalyzerSettings
+class ZDIAnalyzerSettings : public AnalyzerSettings
 {
 public:
-	SimpleSerialAnalyzerSettings();
-	virtual ~SimpleSerialAnalyzerSettings();
+	ZDIAnalyzerSettings();
+	virtual ~ZDIAnalyzerSettings();
 
 	virtual bool SetSettingsFromInterfaces();
 	void UpdateInterfacesFromSettings();
@@ -16,12 +16,12 @@ public:
 	virtual const char* SaveSettings();
 
 	
-	Channel mInputChannel;
-	U32 mBitRate;
+	Channel mZCL;
+	Channel mZDA;
 
 protected:
-	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mInputChannelInterface;
-	std::auto_ptr< AnalyzerSettingInterfaceInteger >	mBitRateInterface;
+	std::unique_ptr< AnalyzerSettingInterfaceChannel >	mZCLInterface;
+	std::unique_ptr< AnalyzerSettingInterfaceChannel >	mZDAInterface;
 };
 
-#endif //SIMPLESERIAL_ANALYZER_SETTINGS
+#endif //ZDI_ANALYZER_SETTINGS

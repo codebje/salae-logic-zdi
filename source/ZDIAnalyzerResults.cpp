@@ -1,32 +1,40 @@
-#include "SimpleSerialAnalyzerResults.h"
+#include "ZDIAnalyzerResults.h"
 #include <AnalyzerHelpers.h>
-#include "SimpleSerialAnalyzer.h"
-#include "SimpleSerialAnalyzerSettings.h"
+#include "ZDIAnalyzer.h"
+#include "ZDIAnalyzerSettings.h"
 #include <iostream>
 #include <fstream>
 
-SimpleSerialAnalyzerResults::SimpleSerialAnalyzerResults( SimpleSerialAnalyzer* analyzer, SimpleSerialAnalyzerSettings* settings )
+ZDIAnalyzerResults::ZDIAnalyzerResults( ZDIAnalyzer* analyzer, ZDIAnalyzerSettings* settings )
 :	AnalyzerResults(),
 	mSettings( settings ),
 	mAnalyzer( analyzer )
 {
 }
 
-SimpleSerialAnalyzerResults::~SimpleSerialAnalyzerResults()
+ZDIAnalyzerResults::~ZDIAnalyzerResults()
 {
 }
 
-void SimpleSerialAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel, DisplayBase display_base )
+void ZDIAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& channel, DisplayBase display_base )
 {
 	ClearResultStrings();
 	Frame frame = GetFrame( frame_index );
 
-	char number_str[128];
-	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
-	AddResultString( number_str );
+	char reg_str[20];
+        char data_str[20];
+
+	AnalyzerHelpers::GetNumberString( frame.mData1 >> 1, display_base, 8, reg_str, std::size(reg_str) );
+	AnalyzerHelpers::GetNumberString( frame.mData2, display_base, 8, data_str, std::size(data_str) );
+
+        AddResultString( frame.mData1 & 1 ? "R" : "W" );
+        auto mid = std::string(reg_str) + (frame.mData1 & 1 ? "<=" : "=>") + data_str;
+        auto big = std::string(reg_str) + (frame.mData1 & 1 ? " <= " : " => ") + data_str;
+        AddResultString ( mid.c_str() );
+        AddResultString ( big.c_str() );
 }
 
-void SimpleSerialAnalyzerResults::GenerateExportFile( const char* file, DisplayBase display_base, U32 export_type_user_id )
+void ZDIAnalyzerResults::GenerateExportFile( const char* file, DisplayBase display_base, U32 export_type_user_id )
 {
 	std::ofstream file_stream( file, std::ios::out );
 
@@ -58,8 +66,11 @@ void SimpleSerialAnalyzerResults::GenerateExportFile( const char* file, DisplayB
 	file_stream.close();
 }
 
-void SimpleSerialAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
+void ZDIAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBase display_base )
 {
+    ClearResultStrings();
+    AddResultString( "not supported" );
+#if 0
 #ifdef SUPPORTS_PROTOCOL_SEARCH
 	Frame frame = GetFrame( frame_index );
 	ClearTabularText();
@@ -68,15 +79,17 @@ void SimpleSerialAnalyzerResults::GenerateFrameTabularText( U64 frame_index, Dis
 	AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
 	AddTabularText( number_str );
 #endif
+#endif
 }
 
-void SimpleSerialAnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )
+void ZDIAnalyzerResults::GeneratePacketTabularText( U64 packet_id, DisplayBase display_base )
 {
-	//not supported
-
+    ClearResultStrings();
+    AddResultString( "not supported" );
 }
 
-void SimpleSerialAnalyzerResults::GenerateTransactionTabularText( U64 transaction_id, DisplayBase display_base )
+void ZDIAnalyzerResults::GenerateTransactionTabularText( U64 transaction_id, DisplayBase display_base )
 {
-	//not supported
+    ClearResultStrings();
+    AddResultString( "not supported" );
 }

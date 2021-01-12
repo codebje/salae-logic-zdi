@@ -43,8 +43,8 @@ include_paths = [ "./AnalyzerSDK/include" ]
 link_paths = [ "./AnalyzerSDK/lib" ]
 link_dependencies = [ "-lAnalyzer" ] #refers to libAnalyzer.dylib or libAnalyzer.so
 
-debug_compile_flags = "-O0 -w -c -fpic -g"
-release_compile_flags = "-O3 -w -c -fpic"
+debug_compile_flags = "-O0 -w -c -fpic -g -std=c++17"
+release_compile_flags = "-O3 -w -c -fpic -std=c++17"
 
 def run_command(cmd):
     "Display cmd, then run it in a subshell, raise if there's an error"
@@ -114,7 +114,10 @@ else:
 for cpp_file in cpp_files:
     release_command += "release/" + cpp_file.replace( ".cpp", ".o" ) + " "
     debug_command += "debug/" + cpp_file.replace( ".cpp", ".o" ) + " "
+
+relink_command = "install_name_tool -change @executable_path/libAnalyzer.dylib @rpath/libAnalyzer.dylib release/libZDIAnalyzer.dylib"
     
 #run the commands from the command line
 run_command(release_command)
 run_command(debug_command)
+run_command(relink_command)
